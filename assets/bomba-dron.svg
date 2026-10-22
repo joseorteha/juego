@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <radialGradient id="shell" cx="0" cy="0" r="1" gradientTransform="translate(35 27) rotate(51) scale(73)" gradientUnits="userSpaceOnUse"><stop stop-color="#8196A2"/><stop offset=".28" stop-color="#263E5A"/><stop offset="1" stop-color="#071523"/></radialGradient>
+    <radialGradient id="core" cx="0" cy="0" r="1" gradientTransform="translate(46 44) rotate(48) scale(32)" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF1BD"/><stop offset=".4" stop-color="#FFB857"/><stop offset="1" stop-color="#E65D4C"/></radialGradient>
+  </defs>
+  <path d="m32 19-11-9-8 15 13 10m42-16 11-9 8 15-13 10M25 65 11 77l13 12 14-15m37-9 14 12-13 12-14-15" fill="#D8DACC" stroke="#071523" stroke-width="5" stroke-linejoin="round"/>
+  <circle cx="50" cy="50" r="37" fill="url(#shell)" stroke="#071523" stroke-width="6"/>
+  <path d="M20 35c10-17 49-23 62 0M20 65c10 18 49 23 62 0" stroke="#E5E2CF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M22 43h13m30 0h13M22 57h13m30 0h13" stroke="#FF7D72" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="50" cy="50" r="22" fill="#071523" stroke="#F3E5CE" stroke-width="5"/>
+  <circle cx="50" cy="50" r="16" fill="url(#core)" stroke="#FF7D72" stroke-width="3"/>
+  <circle cx="45" cy="43" r="5" fill="#FFF7DB" opacity=".85"/>
+  <path d="M41 21h18M41 79h18" stroke="#5CF4EE" stroke-width="4" stroke-linecap="round"/>
+</svg>

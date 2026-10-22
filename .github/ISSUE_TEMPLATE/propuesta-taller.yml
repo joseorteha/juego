@@ -1,0 +1,71 @@
+name: Propuesta de mejora del taller
+description: Una propuesta por equipo para construir, revisar y probar una mejora de Píxel.
+title: "[Taller] Equipo: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Escriban una propuesta por equipo. José verá todas en la lista de Issues y podrá copiar su encargo. No incluyan contraseñas, claves ni datos personales.
+  - type: input
+    id: equipo
+    attributes:
+      label: Equipo
+      description: Un nombre corto para identificar a la mesa.
+      placeholder: "Equipo 1"
+    validations:
+      required: true
+  - type: input
+    id: mejora
+    attributes:
+      label: Nombre de la mejora
+      placeholder: "Radar de baterías"
+    validations:
+      required: true
+  - type: textarea
+    id: comportamiento
+    attributes:
+      label: ¿Qué debe pasar al jugar?
+      description: Escriban cuándo se activa y qué verá o podrá hacer quien juega.
+      placeholder: "Cuando Píxel..., el juego..."
+    validations:
+      required: true
+  - type: textarea
+    id: limites
+    attributes:
+      label: ¿Qué no debe cambiar o romperse?
+      placeholder: "Conservar tres vidas, 75 segundos y la salida..."
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Encargo o prompt para el agente o desarrollador
+      description: Incluyan contexto, comportamiento, límites y qué debe entregar para revisión.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: comprobacion
+    attributes:
+      label: ¿Cómo lo comprobarían?
+      description: Un caso normal y uno límite, con resultado esperado.
+      placeholder: |
+        Caso normal: ...
+        Caso límite: ...
+    validations:
+      required: true
+  - type: input
+    id: pr
+    attributes:
+      label: Enlace al PR, si ya existe
+      description: Pueden editar este Issue para agregarlo después.
+      placeholder: "https://github.com/joseorteha/juego/pull/..."
+    validations:
+      required: false
+  - type: textarea
+    id: resultado
+    attributes:
+      label: Resultado observado, si ya lo jugaron
+      description: Pueden editar este Issue después. Si no pudieron comprobar, escriban pendiente.
+    validations:
+      required: false

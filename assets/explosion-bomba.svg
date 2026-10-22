@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" fill="none">
+  <defs>
+    <radialGradient id="flare"><stop stop-color="#FFF9D8" stop-opacity=".95"/><stop offset=".3" stop-color="#FFC466" stop-opacity=".78"/><stop offset=".7" stop-color="#FF7D72" stop-opacity=".45"/><stop offset="1" stop-color="#FF7D72" stop-opacity="0"/></radialGradient>
+  </defs>
+  <circle cx="130" cy="130" r="110" fill="url(#flare)"/>
+  <path d="m130 13 15 69 41-54-16 66 64-30-44 48 64 18-66 17 44 49-64-29 15 65-42-53-11 68-14-68-39 53 14-65-65 29 45-49-65-17 64-18-44-48 64 30-16-66 42 54 14-69Z" fill="#FFC466" fill-opacity=".65" stroke="#F3E5CE" stroke-opacity=".7" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="130" cy="130" r="49" fill="#FF7D72" fill-opacity=".8"/>
+  <circle cx="130" cy="130" r="29" fill="#FFF0BE"/>
+  <circle cx="130" cy="130" r="87" stroke="#FF7D72" stroke-width="8" stroke-dasharray="25 19"/>
+</svg>
