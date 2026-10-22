@@ -15,7 +15,7 @@ Abre la dirección que muestre Vite. Usa **WASD** o las flechas para mover a Pí
 
 ## El juego
 
-Recoge tres baterías y llega a la puerta antes de que se agoten los 75 segundos. Tienes tres vidas. El dron, sus bombas y los obstáculos hacen que debas elegir una ruta. La derrota por daño o tiempo tiene prioridad si coincide con la llegada a la puerta.
+Elige la dificultad (Fácil, Normal, Difícil o Contrarreloj de 25 s) y empieza. En Normal recoges tres baterías y llegas a la puerta antes de que se agoten los 75 segundos, con tres vidas. Los dos drones, sus bombas y los obstáculos hacen que debas elegir una ruta; los drones aceleran con el tiempo y con cada batería. La tecla **M** activa o silencia la música. La derrota por daño o tiempo tiene prioridad si coincide con la llegada a la puerta.
 
 Las reglas completas están en [docs/REGLAS.md](./docs/REGLAS.md) y las decisiones visuales en [docs/DISENO_VISUAL.md](./docs/DISENO_VISUAL.md).
 

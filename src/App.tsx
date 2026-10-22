@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import robot from "../assets/robot-pixel.png";
 import battery from "../assets/bateria.png";
 import drone from "../assets/dron.png";
@@ -15,17 +15,21 @@ import {
   BATTERIES,
   batteryCount,
   bombPosition,
+  chooseDifficulty,
   createGame,
+  DIFFICULTIES,
   DOOR,
-  MAX_HEALTH,
   OBSTACLES,
   restartGame,
+  settingsFor,
   startGame,
   type Bomb,
+  type Difficulty,
   type Direction,
   type GameState,
   type Obstacle,
 } from "./gameEngine";
+import { createMusic } from "./music";
 
 const keyDirections: Record<string, Direction> = {
   arrowleft: "left",
@@ -37,6 +41,35 @@ const keyDirections: Record<string, Direction> = {
   arrowdown: "down",
   s: "down",
 };
+
+const difficultyKeys: Record<string, Difficulty> = {
+  "1": "facil",
+  "2": "normal",
+  "3": "dificil",
+  "4": "contrarreloj",
+};
+const DIFFICULTY_KEY = "pixel-dificultad";
+const MUSIC_KEY = "pixel-musica";
+
+// La preferencia guardada es una comodidad: sin almacenamiento se usa el valor por defecto.
+function readSetting(key: string) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function saveSetting(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignorado: la partida funciona igual.
+  }
+}
+function savedDifficulty(): Difficulty {
+  const saved = readSetting(DIFFICULTY_KEY);
+  return saved && saved in DIFFICULTIES ? (saved as Difficulty) : "normal";
+}
 
 function resetLabel(phase: GameState["phase"]) {
   return phase === "won" ? "Jugar otra vez" : "Reintentar";
@@ -119,9 +152,15 @@ function BombSprite({ bomb }: { bomb: Bomb }) {
 }
 
 export function App() {
-  const [game, setGame] = useState<GameState>(() => createGame());
+  const [game, setGame] = useState<GameState>(() =>
+    createGame(savedDifficulty()),
+  );
+  const [musicOn, setMusicOn] = useState(() => readSetting(MUSIC_KEY) !== "off");
+  const music = useMemo(() => createMusic(), []);
   const keys = useRef<Set<Direction>>(new Set());
   const count = batteryCount(game);
+  const settings = settingsFor(game);
+  const required = game.batteries.length;
 
   const restart = useCallback(() => {
     keys.current.clear();
@@ -133,6 +172,25 @@ export function App() {
     setGame((previous) => startGame(previous));
   }, []);
 
+  const pickDifficulty = useCallback((difficulty: Difficulty) => {
+    saveSetting(DIFFICULTY_KEY, difficulty);
+    setGame((previous) => chooseDifficulty(previous, difficulty));
+  }, []);
+
+  const toggleMusic = useCallback(() => {
+    setMusicOn((on) => {
+      saveSetting(MUSIC_KEY, on ? "off" : "on");
+      return !on;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (game.phase === "playing" && musicOn) music.start();
+    else music.stop();
+  }, [game.phase, musicOn, music]);
+
+  useEffect(() => () => music.stop(), [music]);
+
   useEffect(() => {
     const onDown = (event: KeyboardEvent) => {
       const direction = keyDirections[event.key.toLowerCase()];
@@ -140,6 +198,9 @@ export function App() {
         event.preventDefault();
         keys.current.add(direction);
       }
+      if (event.key.toLowerCase() === "m" && !event.repeat) toggleMusic();
+      const difficulty = difficultyKeys[event.key];
+      if (difficulty && game.phase === "ready") pickDifficulty(difficulty);
       if (event.key === "Enter" || event.key === " ") {
         if (game.phase === "ready") {
           event.preventDefault();
@@ -163,7 +224,7 @@ export function App() {
       window.removeEventListener("keyup", onUp);
       window.removeEventListener("blur", onBlur);
     };
-  }, [begin, restart, game.phase]);
+  }, [begin, restart, pickDifficulty, toggleMusic, game.phase]);
 
   useEffect(() => {
     if (game.phase !== "playing") return;
@@ -182,7 +243,7 @@ export function App() {
     return () => cancelAnimationFrame(frame);
   }, [game.phase]);
 
-  const exitOpen = count === 3;
+  const exitOpen = count === required;
   const isMoving = keys.current.size > 0 && game.phase === "playing";
 
   return (
@@ -198,7 +259,7 @@ export function App() {
           <div className="status-group">
             <div
               className={`status health-status ${game.health === 1 ? "critical" : ""}`}
-              aria-label={`${game.health} de ${MAX_HEALTH} vidas restantes`}
+              aria-label={`${game.health} de ${settings.health} vidas restantes`}
             >
               <span className="status-icon" aria-hidden="true">
                 ♥
@@ -206,12 +267,12 @@ export function App() {
               <span className="status-label">VIDAS</span>
               <strong>
                 {game.health}
-                <span className="status-total">/{MAX_HEALTH}</span>
+                <span className="status-total">/{settings.health}</span>
               </strong>
             </div>
             <div
               className="status battery-status"
-              aria-label={`${count} de 3 baterías recogidas`}
+              aria-label={`${count} de ${required} baterías recogidas`}
             >
               <span className="status-icon" aria-hidden="true">
                 ▰
@@ -219,7 +280,7 @@ export function App() {
               <span className="status-label">BATERÍAS</span>
               <strong>
                 {count}
-                <span className="status-total">/3</span>
+                <span className="status-total">/{required}</span>
               </strong>
             </div>
             <div
@@ -240,7 +301,7 @@ export function App() {
             className="game-world"
             viewBox="0 0 1600 900"
             role="img"
-            aria-label={`Píxel en el laboratorio. ${count} de 3 baterías. ${Math.ceil(game.time)} segundos.`}
+            aria-label={`Píxel en el laboratorio. ${count} de ${required} baterías. ${Math.ceil(game.time)} segundos.`}
           >
             <image
               href={lab}
@@ -287,7 +348,7 @@ export function App() {
                 {exitOpen ? "SALIDA ABIERTA" : "BLOQUEADA"}
               </text>
             </g>
-            {BATTERIES.map(
+            {BATTERIES.slice(0, required).map(
               (point, index) =>
                 !game.batteries[index] && (
                   <g key={index} className="battery-sprite">
@@ -313,6 +374,15 @@ export function App() {
             <g
               transform={`translate(${game.droneX} ${game.droneY})`}
               className="drone-rig"
+            >
+              <circle r="75" className="drone-ring" />
+              <circle r="92" className="drone-scan" />
+              <image href={drone} x="-74" y="-52" width="148" height="104" />
+              <circle className="drone-eye" r="11" />
+            </g>
+            <g
+              transform={`translate(${game.hunter.x} ${game.hunter.y})`}
+              className="drone-rig hunter-rig"
             >
               <circle r="75" className="drone-ring" />
               <circle r="92" className="drone-scan" />
@@ -379,15 +449,38 @@ export function App() {
                 </h1>
                 <p>
                   {game.phase === "ready"
-                    ? "Recoge las tres baterías, esquiva al dron y sus bombas, y llega a la salida. Tienes tres vidas."
+                    ? `Recoge las ${required} baterías, esquiva a los dos drones y sus bombas, y llega a la salida. Tienes ${settings.health} vidas y ${settings.seconds} segundos. Los drones aceleran con el tiempo y con cada batería.`
                     : game.phase === "won"
                       ? `Saliste con ${Math.ceil(game.time)} segundos restantes.`
                       : game.lossReason === "drone"
-                        ? "El dron agotó tus vidas. Inténtalo otra vez."
+                        ? "Un dron agotó tus vidas. Inténtalo otra vez."
                         : game.lossReason === "bomb"
                           ? "Las bombas agotaron tus vidas. Inténtalo otra vez."
                           : "Se agotó el tiempo. Inténtalo otra vez."}
                 </p>
+                {game.phase === "ready" && (
+                  <div
+                    className="difficulty-picker"
+                    role="radiogroup"
+                    aria-label="Dificultad"
+                  >
+                    {(Object.keys(DIFFICULTIES) as Difficulty[]).map(
+                      (difficulty, index) => (
+                        <button
+                          key={difficulty}
+                          type="button"
+                          role="radio"
+                          aria-checked={game.difficulty === difficulty}
+                          className={`difficulty-option ${game.difficulty === difficulty ? "selected" : ""}`}
+                          onClick={() => pickDifficulty(difficulty)}
+                        >
+                          <span className="key-cap">{index + 1}</span>
+                          {DIFFICULTIES[difficulty].label}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
                 {game.phase === "ready" && (
                   <div className="controls-tip">
                     <span>W A S D</span>
@@ -420,11 +513,22 @@ export function App() {
             <span className="objective-dot" />{" "}
             {exitOpen
               ? "OBJETIVO: LLEGA A LA SALIDA"
-              : `OBJETIVO: REÚNE ${3 - count} BATERÍAS`}
+              : `OBJETIVO: REÚNE ${required - count} BATERÍAS`}
           </span>
-          <button type="button" className="reset-button" onClick={restart}>
-            Reiniciar ↺
-          </button>
+          <span className="bottom-actions">
+            <button
+              type="button"
+              className="reset-button"
+              onClick={toggleMusic}
+              aria-pressed={musicOn}
+            >
+              Música {musicOn ? "♪ sí" : "✕ no"}{" "}
+              <span className="key-cap">M</span>
+            </button>
+            <button type="button" className="reset-button" onClick={restart}>
+              Reiniciar ↺
+            </button>
+          </span>
         </footer>
       </div>
     </main>
