@@ -10,16 +10,25 @@
 body {
   margin: 0;
   min-width: 320px;
+  background: #091523;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  touch-action: manipulation;
 }
 .app-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 24px;
   background: radial-gradient(circle at 50% 0%, #173950 0%, #091523 55%);
 }
 .frame {
-  width: min(100%, 1530px, calc(177.778vh - 391px));
+  /* El escenario 16:9 cabe en la altura visible junto con el HUD y la barra inferior. */
+  width: min(100%, 1530px, calc((100vh - 220px) * 16 / 9));
+  width: min(100%, 1530px, calc((100dvh - 220px) * 16 / 9));
   background: #10283d;
   border: 2px solid #6b91a2;
   box-shadow:
@@ -126,6 +135,9 @@ body {
 .stage {
   position: relative;
   width: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   aspect-ratio: 16/9;
   overflow: hidden;
   background: #26496a;
@@ -323,7 +335,9 @@ body {
   font-size: clamp(17px, 2vw, 27px);
   font-weight: 800;
   box-shadow: 0 12px 28px #0008;
-  white-space: nowrap;
+  max-width: calc(100% - 24px);
+  text-align: center;
+  pointer-events: none;
 }
 .overlay {
   position: absolute;
@@ -332,6 +346,7 @@ body {
   display: grid;
   place-items: center;
   padding: 24px;
+  overflow-y: auto;
 }
 .modal {
   width: min(660px, 94%);
@@ -393,15 +408,18 @@ body {
   background: #183950;
 }
 .difficulty-picker {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  flex-wrap: wrap;
   margin-bottom: 20px;
 }
 .difficulty-option {
-  display: inline-flex;
-  gap: 10px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  text-align: left;
+  min-height: 44px;
   background: #183950;
   color: #f3e5ce;
   border: 2px solid #6b91a2;
@@ -419,6 +437,17 @@ body {
   border-color: #5cf4ee;
   background: #0f4a57;
   box-shadow: 0 0 0 3px #5cf4ee33;
+}
+.difficulty-name {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.difficulty-detail {
+  font-size: 0.72em;
+  font-weight: 700;
+  color: #c6d6de;
+  white-space: nowrap;
 }
 .difficulty-option .key-cap {
   font-size: 14px;
@@ -493,6 +522,7 @@ body {
   color: #f3e5ce;
   border: 1px solid #6b91a2;
   border-radius: 8px;
+  min-height: 44px;
   padding: 10px 14px;
   font: inherit;
   cursor: pointer;
@@ -501,6 +531,68 @@ body {
 .reset-button:hover {
   background: #284d63;
 }
+/* En pantallas bajas (portátiles) el menú usa toda la ventana para no cortarse. */
+@media (max-height: 820px) {
+  .overlay {
+    position: fixed;
+    z-index: 10;
+  }
+}
+
+/* Controles táctiles: solo en pantallas táctiles. */
+.touch-pad {
+  display: none;
+}
+.touch-tip {
+  display: none;
+}
+.joystick {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  flex: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, #183950cc 0%, #10283dcc 70%);
+  border: 3px solid #6b91a2;
+  box-shadow: inset 0 0 0 10px #5cf4ee14;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+}
+.joystick.active {
+  border-color: #5cf4ee;
+}
+.joystick-knob {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #5cf4ee;
+  box-shadow:
+    0 0 18px #5cf4ee88,
+    inset 0 -5px 0 #2a9e9a;
+  pointer-events: none;
+}
+.rotate-hint {
+  margin: 0;
+  max-width: 180px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #c6d6de;
+}
+
+@media (pointer: coarse) {
+  .keyboard-only {
+    display: none !important;
+  }
+  .touch-pad {
+    display: flex;
+  }
+  .touch-tip {
+    display: block;
+  }
+}
+
+/* Pantallas medianas y teléfonos en vertical */
 @media (max-width: 850px) {
   .app-shell {
     padding: 8px;
@@ -509,104 +601,261 @@ body {
     height: auto;
     padding: 10px 12px;
   }
-  .brand-kicker {
-    display: none;
-  }
   .brand strong {
     font-size: 17px;
+  }
+  .brand-kicker {
+    font-size: 10px;
+    letter-spacing: 0.12em;
   }
   .status {
     min-width: auto;
     width: 100px;
     height: 50px;
-    padding: 4px 6px;
+    padding: 4px 8px;
     grid-template-columns: 1fr auto;
   }
   .status-icon {
     display: none;
   }
   .status-label {
-    font-size: 8px;
+    font-size: 9px;
     letter-spacing: 0.06em;
   }
   .status strong {
-    font-size: 19px;
+    font-size: 20px;
   }
   .status-total {
     font-size: 14px;
   }
   .bottom-bar {
-    padding: 10px 12px;
-    font-size: 12px;
-    min-height: 50px;
+    padding: 8px 12px;
+    font-size: 13px;
+    min-height: 56px;
   }
-  .bottom-bar > span:first-child {
+  .bottom-bar > .keyboard-only {
     display: none;
   }
   .objective {
-    font-size: 12px;
+    font-size: 13px;
   }
   .reset-button {
-    font-size: 12px;
-    padding: 7px;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  .toast {
+    font-size: 15px;
+    padding: 8px 14px;
+  }
+  /* El menú ocupa toda la pantalla para que nunca quede cortado. */
+  .overlay {
+    position: fixed;
+    z-index: 10;
+    padding: 16px;
+  }
+  .modal {
+    width: min(560px, 100%);
+    padding: 24px 20px;
   }
   .modal h1 {
-    font-size: clamp(28px, 7vw, 52px);
+    font-size: clamp(30px, 9vw, 52px);
+    margin: 12px 0;
   }
   .modal p {
     font-size: 16px;
+    margin-bottom: 16px;
+  }
+  .difficulty-picker {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .difficulty-option {
+    font-size: 16px;
+    padding: 8px 12px;
   }
   .controls-tip {
     font-size: 13px;
   }
   .primary-button {
-    font-size: 17px;
-    padding: 11px 16px;
+    width: 100%;
+    justify-content: center;
+    font-size: 19px;
+    padding: 14px 16px;
   }
 }
+
+@media (max-width: 850px) and (orientation: portrait) {
+  .app-shell {
+    padding: 0;
+    align-items: start;
+  }
+  .frame {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: env(safe-area-inset-top);
+  }
+  .touch-pad {
+    flex: 1;
+    min-height: 180px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #0c2134;
+  }
+  .joystick {
+    width: 150px;
+    height: 150px;
+  }
+  .bottom-bar {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+}
+
 @media (max-width: 560px) {
   .hud {
-    gap: 5px;
+    gap: 6px;
+    padding: 8px;
   }
   .brand strong {
-    font-size: 13px;
+    font-size: 14px;
   }
   .status-group {
     gap: 4px;
   }
   .status {
-    width: 67px;
+    width: 70px;
+    height: 46px;
+    padding: 3px 6px;
   }
   .status-label {
-    font-size: 7px;
+    font-size: 8px;
   }
   .status strong {
-    font-size: 16px;
+    font-size: 17px;
   }
-  .stage {
-    aspect-ratio: 4/3;
+  .status-total {
+    font-size: 12px;
   }
-  .modal {
-    padding: 16px;
+  .bottom-bar {
+    gap: 8px;
   }
-  .modal-kicker {
-    font-size: 10px;
-  }
-  .modal h1 {
-    font-size: 26px;
-  }
-  .modal p {
-    font-size: 13px;
-  }
-  .controls-tip {
+  .objective {
     font-size: 11px;
   }
+  .modal-kicker {
+    font-size: 11px;
+  }
+  .modal p {
+    font-size: 15px;
+  }
+  .difficulty-option {
+    font-size: 15px;
+  }
+}
+
+/* Teléfonos en horizontal: el escenario usa toda la altura disponible. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .app-shell {
+    padding: 0;
+  }
+  .frame {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .hud {
+    height: 52px;
+    padding: 4px max(12px, env(safe-area-inset-right)) 4px
+      max(12px, env(safe-area-inset-left));
+    border-bottom-width: 2px;
+  }
+  .brand-kicker {
+    display: none;
+  }
+  .status {
+    height: 42px;
+  }
+  .stage {
+    flex: none;
+    width: min(100%, calc((100vh - 52px) * 16 / 9));
+    width: min(100%, calc((100dvh - 52px) * 16 / 9));
+    margin: 0 auto;
+  }
+  .touch-pad {
+    position: absolute;
+    left: max(10px, env(safe-area-inset-left));
+    bottom: 10px;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .joystick {
+    pointer-events: auto;
+    width: 128px;
+    height: 128px;
+    opacity: 0.85;
+  }
+  .rotate-hint {
+    display: none;
+  }
+  .bottom-bar {
+    position: absolute;
+    right: max(10px, env(safe-area-inset-right));
+    bottom: 10px;
+    z-index: 5;
+    min-height: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+  .bottom-bar .objective {
+    display: none;
+  }
+  .bottom-actions {
+    flex-direction: column;
+  }
+  .bottom-actions .reset-button {
+    background: #183950dd;
+  }
+  .overlay {
+    position: fixed;
+    z-index: 10;
+    padding: 12px;
+  }
+  .modal {
+    width: min(640px, 100%);
+    padding: 16px 20px;
+  }
+  .modal h1 {
+    font-size: 30px;
+    margin: 8px 0;
+  }
+  .modal p {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
   .difficulty-picker {
+    grid-template-columns: repeat(4, 1fr);
     margin-bottom: 12px;
   }
   .difficulty-option {
-    font-size: 13px;
+    font-size: 14px;
     padding: 6px 10px;
+  }
+  .primary-button {
+    font-size: 17px;
+    padding: 10px 16px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
