@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Abre la dirección que muestre Vite. Usa **WASD** o las flechas para mover a Píxel. Pulsa **Enter** o **espacio** para empezar y para volver a jugar después de ganar o perder.
+Abre la dirección que muestre Vite. Usa **WASD** o las flechas para mover a Píxel; en el teléfono aparece un joystick táctil (en horizontal el escenario se ve más grande). Pulsa **Enter** o **espacio** para empezar y para volver a jugar después de ganar o perder.
 
 ## El juego
 

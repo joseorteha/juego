@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent,
+} from "react";
 import robot from "../assets/robot-pixel.png";
 import battery from "../assets/bateria.png";
 import drone from "../assets/dron.png";
@@ -73,6 +80,64 @@ function savedDifficulty(): Difficulty {
 
 function resetLabel(phase: GameState["phase"]) {
   return phase === "won" ? "Jugar otra vez" : "Reintentar";
+}
+
+// Joystick táctil: traduce el arrastre a las mismas ocho direcciones del teclado.
+function Joystick({
+  onChange,
+}: {
+  onChange: (directions: Set<Direction>) => void;
+}) {
+  const base = useRef<HTMLDivElement>(null);
+  const [knob, setKnob] = useState({ x: 0, y: 0 });
+
+  const move = (event: PointerEvent<HTMLDivElement>) => {
+    if (!base.current) return;
+    const rect = base.current.getBoundingClientRect();
+    const radius = rect.width / 2;
+    const x = (event.clientX - rect.left - radius) / radius;
+    const y = (event.clientY - rect.top - radius) / radius;
+    const length = Math.hypot(x, y);
+    const scale = length > 1 ? 1 / length : 1;
+    setKnob({ x: x * scale * radius * 0.55, y: y * scale * radius * 0.55 });
+    const directions = new Set<Direction>();
+    if (length > 0.25) {
+      // 0.38 ≈ sin(22,5°): ocho sectores iguales.
+      if (x / length > 0.38) directions.add("right");
+      if (x / length < -0.38) directions.add("left");
+      if (y / length > 0.38) directions.add("down");
+      if (y / length < -0.38) directions.add("up");
+    }
+    onChange(directions);
+  };
+
+  const release = () => {
+    setKnob({ x: 0, y: 0 });
+    onChange(new Set());
+  };
+
+  return (
+    <div
+      ref={base}
+      className={`joystick ${knob.x || knob.y ? "active" : ""}`}
+      aria-label="Joystick: arrastra para mover a Píxel"
+      onPointerDown={(event) => {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        move(event);
+      }}
+      onPointerMove={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) move(event);
+      }}
+      onPointerUp={release}
+      onPointerCancel={release}
+      onLostPointerCapture={release}
+    >
+      <div
+        className="joystick-knob"
+        style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
+      />
+    </div>
+  );
 }
 
 function ObstacleSprite({ obstacle }: { obstacle: Obstacle }) {
@@ -158,6 +223,9 @@ export function App() {
   const [musicOn, setMusicOn] = useState(() => readSetting(MUSIC_KEY) !== "off");
   const music = useMemo(() => createMusic(), []);
   const keys = useRef<Set<Direction>>(new Set());
+  const touchKeys = useRef<Set<Direction>>(new Set());
+  const [touchMoving, setTouchMoving] = useState(false);
+  const lastHealth = useRef(game.health);
   const count = batteryCount(game);
   const settings = settingsFor(game);
   const required = game.batteries.length;
@@ -171,6 +239,17 @@ export function App() {
     keys.current.clear();
     setGame((previous) => startGame(previous));
   }, []);
+
+  const steer = useCallback((directions: Set<Direction>) => {
+    touchKeys.current = directions;
+    setTouchMoving(directions.size > 0);
+  }, []);
+
+  // En teléfonos, una vibración corta confirma que Píxel recibió daño.
+  useEffect(() => {
+    if (game.health < lastHealth.current) navigator.vibrate?.(140);
+    lastHealth.current = game.health;
+  }, [game.health]);
 
   const pickDifficulty = useCallback((difficulty: Difficulty) => {
     saveSetting(DIFFICULTY_KEY, difficulty);
@@ -234,7 +313,7 @@ export function App() {
       // Captura los valores antes de encolar la actualización de React.
       // El updater puede ejecutarse después de que `last` y las teclas cambien.
       const elapsed = (now - last) / 1000;
-      const input = new Set(keys.current);
+      const input = new Set([...keys.current, ...touchKeys.current]);
       last = now;
       setGame((previous) => advanceGame(previous, input, elapsed));
       frame = requestAnimationFrame(tick);
@@ -244,14 +323,17 @@ export function App() {
   }, [game.phase]);
 
   const exitOpen = count === required;
-  const isMoving = keys.current.size > 0 && game.phase === "playing";
+  const isMoving =
+    (keys.current.size > 0 || touchMoving) && game.phase === "playing";
 
   return (
     <main className="app-shell">
       <div className="frame">
         <header className="hud">
           <div className="brand">
-            <span className="brand-kicker">LAB 01 / MISIÓN</span>
+            <span className="brand-kicker">
+              LAB 01 / {settings.label.toUpperCase()}
+            </span>
             <strong>
               PÍXEL <span className="brand-light">·</span> ESCAPA
             </strong>
@@ -474,20 +556,34 @@ export function App() {
                           className={`difficulty-option ${game.difficulty === difficulty ? "selected" : ""}`}
                           onClick={() => pickDifficulty(difficulty)}
                         >
-                          <span className="key-cap">{index + 1}</span>
-                          {DIFFICULTIES[difficulty].label}
+                          <span className="difficulty-name">
+                            <span className="key-cap keyboard-only">
+                              {index + 1}
+                            </span>
+                            {DIFFICULTIES[difficulty].label}
+                          </span>
+                          <span className="difficulty-detail">
+                            {DIFFICULTIES[difficulty].seconds} s ·{" "}
+                            {DIFFICULTIES[difficulty].health} ♥ ·{" "}
+                            {DIFFICULTIES[difficulty].batteries} ▰
+                          </span>
                         </button>
                       ),
                     )}
                   </div>
                 )}
                 {game.phase === "ready" && (
-                  <div className="controls-tip">
+                  <div className="controls-tip keyboard-only">
                     <span>W A S D</span>
                     <span>o</span>
                     <span>← ↑ ↓ →</span>
                     <span>para moverte</span>
                   </div>
+                )}
+                {game.phase === "ready" && (
+                  <p className="touch-tip touch-only">
+                    Arrastra el joystick para mover a Píxel.
+                  </p>
                 )}
                 <button
                   className="primary-button"
@@ -504,8 +600,13 @@ export function App() {
           )}
         </section>
 
+        <div className="touch-pad touch-only">
+          <Joystick onChange={steer} />
+          <p className="rotate-hint">Gira el teléfono para ver el laboratorio más grande.</p>
+        </div>
+
         <footer className="bottom-bar">
-          <span>
+          <span className="keyboard-only">
             <span className="key-cap">WASD</span> o{" "}
             <span className="key-cap">FLECHAS</span> para moverte
           </span>
@@ -523,7 +624,7 @@ export function App() {
               aria-pressed={musicOn}
             >
               Música {musicOn ? "♪ sí" : "✕ no"}{" "}
-              <span className="key-cap">M</span>
+              <span className="key-cap keyboard-only">M</span>
             </button>
             <button type="button" className="reset-button" onClick={restart}>
               Reiniciar ↺

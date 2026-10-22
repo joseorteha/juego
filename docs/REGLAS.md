@@ -25,7 +25,7 @@ La puerta muestra que está bloqueada mientras falten baterías. Al reunir las t
 ## Una partida, paso a paso
 
 1. En la pantalla de inicio el jugador elige la dificultad (botones o teclas **1** a **4**; por defecto **Normal**) y pulsa **Empezar**. En Normal el tiempo comienza en 75 segundos y tiene tres vidas.
-2. Mueve a Píxel por el escenario con WASD o las flechas. El personaje no puede salir de los límites visibles ni atravesar los obstáculos; puede deslizarse a lo largo de ellos.
+2. Mueve a Píxel por el escenario con WASD o las flechas; en pantallas táctiles, con el joystick (las mismas ocho direcciones). El personaje no puede salir de los límites visibles ni atravesar los obstáculos; puede deslizarse a lo largo de ellos.
 3. Al tocar una batería, esta desaparece, el contador aumenta una vez y aparece una señal breve de recolección.
 4. Si toca la puerta antes de reunir las tres, recibe un mensaje breve: **«Faltan baterías»**. La partida continúa.
 5. Al recoger la tercera batería, la puerta cambia de apariencia para indicar que ya puede usarse.
