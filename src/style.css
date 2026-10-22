@@ -201,6 +201,17 @@ body {
   fill: #ff7d72;
   filter: drop-shadow(0 0 14px #ff7d72);
 }
+.hunter-rig .drone-ring {
+  stroke: #5cf4ee;
+  animation-direction: reverse;
+}
+.hunter-rig .drone-scan {
+  stroke: #5cf4ee;
+}
+.hunter-rig .drone-eye {
+  fill: #5cf4ee;
+  filter: drop-shadow(0 0 14px #5cf4ee);
+}
 .target-decal {
   animation: target-breathe 0.9s ease-in-out infinite alternate;
   transform-box: fill-box;
@@ -381,6 +392,49 @@ body {
   border-radius: 5px;
   background: #183950;
 }
+.difficulty-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.difficulty-option {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  background: #183950;
+  color: #f3e5ce;
+  border: 2px solid #6b91a2;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 19px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.difficulty-option:hover {
+  background: #284d63;
+}
+.difficulty-option.selected {
+  border-color: #5cf4ee;
+  background: #0f4a57;
+  box-shadow: 0 0 0 3px #5cf4ee33;
+}
+.difficulty-option .key-cap {
+  font-size: 14px;
+}
+.difficulty-option:focus-visible {
+  outline: 4px solid #ffc466;
+  outline-offset: 4px;
+}
+.bottom-actions {
+  display: flex;
+  gap: 10px;
+}
+.bottom-actions .key-cap {
+  padding: 1px 6px;
+  font-size: 12px;
+}
 .primary-button {
   border: 0;
   background: #ffc466;
@@ -546,6 +600,13 @@ body {
   }
   .controls-tip {
     font-size: 11px;
+  }
+  .difficulty-picker {
+    margin-bottom: 12px;
+  }
+  .difficulty-option {
+    font-size: 13px;
+    padding: 6px 10px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -6,13 +6,13 @@ La paleta, jerarquía visual y reglas de legibilidad están en [Diseño visual](
 
 ## La idea
 
-Píxel, un pequeño robot explorador, quedó encerrado en un laboratorio. La puerta necesita energía para abrirse. Debe recoger **tres baterías**, rodear los obstáculos, esquivar al dron y sus bombas, y llegar a la salida antes de que se agote el tiempo.
+Píxel, un pequeño robot explorador, quedó encerrado en un laboratorio. La puerta necesita energía para abrirse. Debe recoger **tres baterías**, rodear los obstáculos, esquivar a dos drones y sus bombas, y llegar a la salida antes de que se agote el tiempo.
 
 Es un juego corto que cualquier persona puede entender y jugar en menos de un minuto. Su valor para el taller está en que las reglas parecen evidentes hasta que empezamos a preguntar qué debe ocurrir en situaciones límite.
 
 ## Lo que ve el jugador
 
-Una sola pantalla horizontal, con el laboratorio de fondo. Píxel inicia cerca de la esquina inferior izquierda. Hay tres baterías separadas entre sí, cajas y reactores que bloquean el camino, un dron que patrulla por el centro y una puerta luminosa al otro extremo.
+Una sola pantalla horizontal, con el laboratorio de fondo. Píxel inicia cerca de la esquina inferior izquierda. Hay tres baterías separadas entre sí, cajas y reactores que bloquean el camino, dos drones y una puerta luminosa al otro extremo.
 
 Encima del escenario aparece una barra sencilla:
 
@@ -24,14 +24,32 @@ La puerta muestra que está bloqueada mientras falten baterías. Al reunir las t
 
 ## Una partida, paso a paso
 
-1. El jugador pulsa **Empezar**. El tiempo comienza en 75 segundos y tiene tres vidas.
+1. En la pantalla de inicio el jugador elige la dificultad (botones o teclas **1** a **4**; por defecto **Normal**) y pulsa **Empezar**. En Normal el tiempo comienza en 75 segundos y tiene tres vidas.
 2. Mueve a Píxel por el escenario con WASD o las flechas. El personaje no puede salir de los límites visibles ni atravesar los obstáculos; puede deslizarse a lo largo de ellos.
 3. Al tocar una batería, esta desaparece, el contador aumenta una vez y aparece una señal breve de recolección.
 4. Si toca la puerta antes de reunir las tres, recibe un mensaje breve: **«Faltan baterías»**. La partida continúa.
 5. Al recoger la tercera batería, la puerta cambia de apariencia para indicar que ya puede usarse.
 6. Si Píxel toca la puerta abierta con tiempo restante, aparece **«¡Escapaste!»** con la opción **Jugar otra vez**.
-7. El dron se desplaza en dos ejes y lanza bombas cada pocos segundos. Un círculo rojo marca dónde caerá cada una, con tiempo para apartarse. Cada impacto del dron o una explosión quita una vida; tras un impacto hay un breve periodo de protección.
-8. Si pierde las tres vidas o el tiempo llega a cero, aparece **«Misión fallida»** con la opción **Reintentar**.
+7. Un dron patrulla el centro. El segundo vigila el lado derecho, persigue a Píxel cuando se acerca y apunta sus bombas por delante de su movimiento. Ambos lanzan bombas cada pocos segundos. Un círculo rojo marca dónde caerá cada una, con tiempo para apartarse. Cada contacto con un dron o una explosión quita una vida; tras un impacto hay un breve periodo de protección.
+8. Los drones aceleran a medida que avanza la partida: +10 % al cumplir 30 segundos de juego y +20 % al cumplir 40, con el aviso **«¡Los drones aceleran!»**. Además, cada batería recogida suma un 5 % de velocidad, con un tope del 10 % por baterías.
+9. Si pierde todas sus vidas o el tiempo llega a cero, aparece **«Misión fallida»** con la opción **Reintentar**.
+10. Durante la partida suena una música en bucle generada por el navegador. Se activa o silencia con el botón **Música** o la tecla **M**.
+
+## Dificultad
+
+La dificultad solo ajusta parámetros; las reglas son las mismas en los cuatro modos. Se elige antes de empezar, no puede cambiarse a mitad de partida y el navegador recuerda la última elección.
+
+| Parámetro | Fácil | Normal | Difícil | Contrarreloj |
+| --- | --- | --- | --- | --- |
+| Tiempo límite | 90 s | 75 s | 60 s | 25 s |
+| Vidas | 4 | 3 | 2 | 3 |
+| Baterías para abrir la puerta | 3 | 3 | 4 | 3 |
+| Velocidad base de los drones | 0,8× | 1× | 1,3× | 1× |
+| Espera entre bombas | 1,3× (menos bombas) | 1× | 0,75× (más bombas) | 1× |
+
+**Contrarreloj** es Normal con 25 segundos: si el tiempo llega a cero se pierde al instante, y tocar la puerta abierta con 1 o 2 segundos restantes sigue siendo victoria. Como dura menos de 30 segundos, la aceleración por tiempo nunca se activa; la de las baterías sí.
+
+En Difícil aparece una cuarta batería en la esquina inferior derecha. La aceleración por tiempo y por baterías se aplica sobre la velocidad base de cada modo.
 
 Una partida ideal dura entre 40 y 75 segundos. El juego debe poder entenderse mirando la pantalla y leyendo la instrucción inicial.
 
@@ -41,14 +59,16 @@ Una partida ideal dura entre 40 y 75 segundos. El juego debe poder entenderse mi
 | --- | --- |
 | Tocar una batería disponible | Se recoge, desaparece y el contador sube una unidad. |
 | Volver a pasar por una batería ya recogida | No cambia nada. |
-| Tocar la puerta con menos de tres baterías | No gana; se indica cuántas faltan. |
-| Tocar la puerta con tres baterías y tiempo mayor que cero | Gana; el juego se detiene. |
-| Tocar al dron | Pierde una vida y obtiene una breve protección. |
+| Tocar la puerta con menos baterías de las requeridas | No gana; se indica cuántas faltan. |
+| Tocar la puerta con todas las baterías y tiempo mayor que cero | Gana; el juego se detiene. |
+| Tocar cualquiera de los drones | Pierde una vida y obtiene una breve protección. |
 | Permanecer en el círculo de una bomba al explotar | Pierde una vida y obtiene una breve protección. |
 | Chocar con una caja o reactor | El obstáculo lo detiene; puede rodearlo. |
-| Perder las tres vidas | Pierde; el juego se detiene. |
+| Cumplir 30 o 40 segundos de partida | Los drones aceleran y aparece un aviso. |
+| Recoger una batería | Los drones aceleran un 5 %, hasta un máximo del 10 % por baterías. |
+| Perder todas las vidas | Pierde; el juego se detiene. |
 | El tiempo llega a cero | Pierde; el juego se detiene. |
-| Reiniciar después de ganar o perder | Vuelven Píxel, las tres baterías, el dron, las tres vidas y los 75 segundos; contador `0/3`, puerta bloqueada y sin bombas activas. |
+| Reiniciar después de ganar o perder | Vuelven Píxel, las baterías, ambos drones, las vidas y el tiempo de la dificultad elegida (en Normal: tres vidas, 75 segundos, contador `0/3`), su velocidad base, la puerta bloqueada y sin bombas activas. La dificultad se conserva. |
 
 Si dos sucesos ocurren casi al mismo tiempo, **la derrota por daño o por tiempo tiene prioridad**. Así evitamos una pantalla que diga a la vez «ganaste» y «perdiste».
 
@@ -57,10 +77,10 @@ Si dos sucesos ocurren casi al mismo tiempo, **la derrota por daño o por tiempo
 - **Estilo:** ilustración 2D de ciencia ficción amable. Azul marino en el escenario, luces cian para la energía y acentos ámbar para avisos y peligro.
 - **Píxel:** el robot blanco y azul rebota e inclina el cuerpo al caminar, deja pequeñas chispas bajo los pies y se ilumina al recibir daño.
 - **Baterías:** tres copias del mismo asset, colocadas en posiciones fijas y fáciles de distinguir del fondo.
-- **Dron:** patrulla horizontal y verticalmente, con anillos animados, y lanza bombas hacia la posición del jugador. La zona de impacto se señala durante el vuelo.
+- **Drones:** el primero patrulla horizontal y verticalmente y apunta a la posición del jugador. El segundo vigila el lado derecho y persigue al jugador cuando está a menos de 440 unidades; sus bombas anticipan 0,65 segundos de movimiento. Ambos tienen anillos animados y señalan la zona de impacto durante el vuelo.
 - **Obstáculos:** cajas metálicas y reactores energizados con assets SVG independientes. Sus formas visibles corresponden a sus zonas de colisión.
 - **Puerta:** visible desde el principio. Su cambio de estado debe notarse mediante brillo, color del indicador o una etiqueta HTML; la ilustración por sí sola no debe cargar toda la información.
-- **Sonido:** señales breves para recoger, ganar y perder son opcionales. El juego tiene que entenderse también sin audio.
+- **Sonido:** una melodía en bucle generada con Web Audio (sin archivos ni conexión) suena mientras se juega y se puede silenciar con **M**. El juego tiene que entenderse también sin audio.
 
 ## Assets ya disponibles
 
@@ -80,12 +100,12 @@ Los objetos recortados tienen transparencia; los textos, botones, contador y men
 
 ## Pantallas necesarias
 
-1. **Inicio:** título, instrucción de una frase y botón **Empezar**. El nivel se ve detrás.
+1. **Inicio:** título, instrucción breve, selector de dificultad y botón **Empezar**. El nivel se ve detrás.
 2. **Jugando:** escenario, indicador `0/3`, temporizador y mensajes breves.
 3. **Victoria:** «¡Escapaste!», tiempo restante y botón **Jugar otra vez**.
 4. **Derrota:** «Misión fallida», causa —dron o tiempo— y botón **Reintentar**.
 
-No hacen falta menús adicionales, cuentas, guardado ni más niveles.
+No hacen falta otros menús, cuentas, guardado de partidas ni más niveles.
 
 ## Criterio de terminado
 
